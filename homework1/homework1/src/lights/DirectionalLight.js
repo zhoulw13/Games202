@@ -22,6 +22,19 @@ class DirectionalLight {
         let projectionMatrix = mat4.create();
 
         // Model transform
+		mat4.identity(modelMatrix);
+		mat4.translate(modelMatrix, modelMatrix, translate);
+		mat4.scale(modelMatrix, modelMatrix, scale);
+		// View transform
+		mat4.lookAt(viewMatrix, this.lightPos, this.focalPoint, this.lightUp);
+        //mat4.transpose(viewMatrix, viewMatrix);
+		// Projection transform
+		//mat4.copy(projectionMatrix, camera.projectionMatrix.elements);
+
+        mat4.identity(projectionMatrix);
+        mat4.perspective(projectionMatrix, 120.0 * 3.14 / 180.0, 1.0, 1e-2, 1000.0);
+
+        // Model transform
         let focalPoint = vec3.fromValues(this.focalPoint[0], this.focalPoint[1], this.focalPoint[2]);
         let lightPos = vec3.fromValues(this.lightPos[0], this.lightPos[1], this.lightPos[2]);
         let lightUp = vec3.fromValues(this.lightUp[0], this.lightUp[1], this.lightUp[2]);
@@ -54,18 +67,18 @@ class DirectionalLight {
         );
         */
         
-        modelMatrix = mat4.fromValues(
+        /*modelMatrix = mat4.fromValues(
             1, 0, 0, 0, 
-            0, 0.707, 0.707, 0, 
-            0, -0.707, 0.707, 0,
+            0, -0.707, 0.707, 0, 
+            0, -0.707, -0.707, 0,
             0, 0, 0, 1
         );
 
         // View transform
         viewMatrix = mat4.fromValues(
-            1, 0, 0, this.lightPos[0], 
-            0, 1, 0, this.lightPos[1], 
-            0, 0, 1, this.lightPos[2],
+            1, 0, 0, -this.lightPos[0], 
+            0, 1, 0, -this.lightPos[1], 
+            0, 0, 1, -this.lightPos[2],
             0, 0, 0, 1
         );
     
@@ -75,10 +88,11 @@ class DirectionalLight {
             0, 1, 0, 0, 
             0, 0, 1, 0,
             0, 0, 0, 1
-        );
+        );*/
 
         mat4.multiply(lightMVP, projectionMatrix, viewMatrix);
         mat4.multiply(lightMVP, lightMVP, modelMatrix);
+        console.log(translate);
         console.log(lightMVP);
 
         return lightMVP;

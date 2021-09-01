@@ -13,6 +13,7 @@ uniform vec3 uLightIntensity;
 varying highp vec2 vTextureCoord;
 varying highp vec3 vFragPos;
 varying highp vec3 vNormal;
+varying highp vec4 shadowCoord;
 
 // Shadow map related variables
 #define NUM_SAMPLES 20
@@ -147,7 +148,6 @@ vec3 blinnPhong() {
 void main(void) {
 
   float visibility;
-  vec4 shadowCoord = (gl_FragCoord + 1024.0) * 2048.0;
   visibility = useShadowMap(uShadowMap, shadowCoord);
   //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
