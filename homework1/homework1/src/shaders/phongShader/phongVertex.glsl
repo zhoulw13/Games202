@@ -24,7 +24,7 @@ void main(void) {
 
   vTextureCoord = aTextureCoord;
   vPositionFromLight = uLightMVP * vec4(aVertexPosition, 1.0);
-  shadowCoord = biasMatrix * vPositionFromLight;
-  //shadowCoord = vPositionFromLight;
+  //shadowCoord = biasMatrix * vPositionFromLight;
+  shadowCoord = vPositionFromLight;
   //vPositionFromLight = vec4(aVertexPosition, 1.0);
 }

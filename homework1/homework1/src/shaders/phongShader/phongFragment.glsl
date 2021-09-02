@@ -9,6 +9,7 @@ uniform vec3 uKs;
 uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
 uniform vec3 uLightIntensity;
+uniform mat4 biasMatrix;
 
 varying highp vec2 vTextureCoord;
 varying highp vec3 vFragPos;
@@ -154,6 +155,7 @@ void main(void) {
 
   vec3 phongColor = blinnPhong();
 
+  vec4 newshadowCoord = biasMatrix * shadowCoord;
   gl_FragColor = vec4(phongColor * visibility, 1.0);
-  gl_FragColor = setValue(shadowCoord.x);//getShadow(uShadowMap, vPositionFromLight);
+  gl_FragColor = setValue(gl_FragCoord.y/2048.0);//getShadow(uShadowMap, vPositionFromLight);
 }

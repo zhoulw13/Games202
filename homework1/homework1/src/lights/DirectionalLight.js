@@ -25,6 +25,7 @@ class DirectionalLight {
 		mat4.identity(modelMatrix);
 		mat4.translate(modelMatrix, modelMatrix, translate);
 		mat4.scale(modelMatrix, modelMatrix, scale);
+
 		// View transform
 		mat4.lookAt(viewMatrix, this.lightPos, this.focalPoint, this.lightUp);
         //mat4.transpose(viewMatrix, viewMatrix);
@@ -90,10 +91,15 @@ class DirectionalLight {
             0, 0, 0, 1
         );*/
 
+        console.log(translate);
+        
+        console.log(modelMatrix);
+        console.log(viewMatrix);
+        console.log(projectionMatrix);
+
         mat4.multiply(lightMVP, projectionMatrix, viewMatrix);
         mat4.multiply(lightMVP, lightMVP, modelMatrix);
-        console.log(translate);
-        console.log(lightMVP);
+
 
         return lightMVP;
     }

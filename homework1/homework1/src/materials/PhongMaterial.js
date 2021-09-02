@@ -5,10 +5,10 @@ class PhongMaterial extends Material {
         let lightIntensity = light.mat.GetIntensity();
 
         let biasMatrix = mat4.fromValues(
-            1/1024.0, 0.0, 0.0, 0.0,
-            0.0, 1/1024.0, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.5, 0.5, 0.5, 1.0
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
         );
 
         super({
