@@ -4,13 +4,6 @@ class PhongMaterial extends Material {
         let lightMVP = light.CalcLightMVP(translate, scale);
         let lightIntensity = light.mat.GetIntensity();
 
-        let biasMatrix = mat4.fromValues(
-            0.5, 0.0, 0.0, 0.0,
-            0.0, 0.5, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        );
-
         super({
             // Phong
             'uSampler': { type: 'texture', value: color },
@@ -19,7 +12,6 @@ class PhongMaterial extends Material {
             // Shadow
             'uShadowMap': { type: 'texture', value: light.fbo },
             'uLightMVP': { type: 'matrix4fv', value: lightMVP },
-            'biasMatrix': { type: 'matrix4fv', value: biasMatrix },
 
         }, [], vertexShader, fragmentShader);
     }

@@ -9,12 +9,10 @@ uniform vec3 uKs;
 uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
 uniform vec3 uLightIntensity;
-uniform mat4 biasMatrix;
 
 varying highp vec2 vTextureCoord;
 varying highp vec3 vFragPos;
 varying highp vec3 vNormal;
-varying highp vec4 shadowCoord;
 
 // Shadow map related variables
 #define NUM_SAMPLES 20
@@ -107,8 +105,8 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 
 
 float useShadowMap(sampler2D shadowMap, vec4 shadowCoord){
-  if (unpack(texture2D(shadowMap, shadowCoord.xy)) > shadowCoord.z)
-    return 0.0;
+  if (unpack(texture2D(shadowMap, shadowCoord.xy)) < shadowCoord.z)
+    return 0.5;
   return 1.0;
 }
 
@@ -149,13 +147,13 @@ vec3 blinnPhong() {
 void main(void) {
 
   float visibility;
+  vec4 screenCoord = vPositionFromLight / vPositionFromLight.w;
+  vec4 shadowCoord = (screenCoord + 1.0 ) / 2.0;
   visibility = useShadowMap(uShadowMap, shadowCoord);
   //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
   vec3 phongColor = blinnPhong();
 
-  vec4 newshadowCoord = biasMatrix * shadowCoord;
   gl_FragColor = vec4(phongColor * visibility, 1.0);
-  gl_FragColor = setValue(gl_FragCoord.y/2048.0);//getShadow(uShadowMap, vPositionFromLight);
 }
