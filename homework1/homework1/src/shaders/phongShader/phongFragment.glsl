@@ -19,7 +19,7 @@ varying highp vec3 vNormal;
 #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES
 #define PCF_NUM_SAMPLES NUM_SAMPLES
 #define NUM_RINGS 10
-#define WLIGHT 30.0
+#define WLIGHT 100.0
 
 #define EPS 1e-3
 #define PI 3.141592653589793
@@ -85,7 +85,19 @@ void uniformDiskSamples( const in vec2 randomSeed ) {
 }
 
 float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
-	return 1.0;
+  float radius = (zReceiver - 1.0) / zReceiver * WLIGHT / 2048.0;
+  poissonDiskSamples(uv);
+  int count = 0;
+  float blockerSums = 0.0;
+  for( int i = 0; i < NUM_SAMPLES; i ++ ) {
+    vec2 sampleCoord = poissonDisk[i] * radius + uv;
+    float dBlocker = unpack(texture2D(shadowMap, sampleCoord));
+    if (dBlocker < zReceiver) {
+      blockerSums += dBlocker;
+      count ++;
+    }
+  }
+	return blockerSums / float(count);
 }
 
 float PCF(sampler2D shadowMap, vec4 coords) {
@@ -109,12 +121,24 @@ float PCF(sampler2D shadowMap, vec4 coords) {
 float PCSS(sampler2D shadowMap, vec4 coords){
 
   // STEP 1: avgblocker depth
+  float dBlocker = findBlocker(shadowMap, coords.xy, coords.z);
+  float dReceiver = coords.z;
+  if (dBlocker >= dReceiver)
+    return 1.0;
 
   // STEP 2: penumbra size
+  float wpenumbra = (dReceiver - dBlocker) / dBlocker * WLIGHT / 2048.0;
 
   // STEP 3: filtering
-  
-  return 1.0;
+  float visibility = 0.0;
+
+  poissonDiskSamples(coords.xy);
+  for( int i = 0; i < NUM_SAMPLES; i ++ ) {
+    vec2 sampleCoord = poissonDisk[i] * wpenumbra + coords.xy;
+    visibility += unpack(texture2D(shadowMap, sampleCoord)) < coords.z ? 0.0 : 1.0;
+  }
+
+  return visibility / float(NUM_SAMPLES);
 
 }
 
@@ -164,8 +188,8 @@ void main(void) {
   vec4 screenCoord = vPositionFromLight / vPositionFromLight.w;
   vec4 shadowCoord = (screenCoord + 1.0 ) / 2.0;
   //visibility = useShadowMap(uShadowMap, shadowCoord);
-  visibility = PCF(uShadowMap, shadowCoord);
-  //visibility = PCSS(uShadowMap, shadowCoord);
+  //visibility = PCF(uShadowMap, shadowCoord);
+  visibility = PCSS(uShadowMap, shadowCoord);
 
   vec3 phongColor = blinnPhong();
 
