@@ -85,14 +85,14 @@ void uniformDiskSamples( const in vec2 randomSeed ) {
 }
 
 float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
-  float radius = (zReceiver - 1.0) / zReceiver * WLIGHT / 2048.0;
+  float radius = (zReceiver - 0.1) / zReceiver * WLIGHT / 2048.0;
   poissonDiskSamples(uv);
   int count = 0;
   float blockerSums = 0.0;
   for( int i = 0; i < NUM_SAMPLES; i ++ ) {
     vec2 sampleCoord = poissonDisk[i] * radius + uv;
     float dBlocker = unpack(texture2D(shadowMap, sampleCoord));
-    if (dBlocker < zReceiver) {
+    if (dBlocker < zReceiver - 0.01) {
       blockerSums += dBlocker;
       count ++;
     }
@@ -119,10 +119,13 @@ float PCF(sampler2D shadowMap, vec4 coords) {
 }
 
 float PCSS(sampler2D shadowMap, vec4 coords){
+  //if (unpack(texture2D(shadowMap, coords.xy)) >= coords.z)
+  //  return 1.0; 
 
   // STEP 1: avgblocker depth
   float dBlocker = findBlocker(shadowMap, coords.xy, coords.z);
   float dReceiver = coords.z;
+
   if (dBlocker >= dReceiver)
     return 1.0;
 
@@ -139,7 +142,6 @@ float PCSS(sampler2D shadowMap, vec4 coords){
   }
 
   return visibility / float(NUM_SAMPLES);
-
 }
 
 
@@ -194,4 +196,5 @@ void main(void) {
   vec3 phongColor = blinnPhong();
 
   gl_FragColor = vec4(phongColor * visibility, 1.0);
+  //gl_FragColor = setValue(visibility);
 }
