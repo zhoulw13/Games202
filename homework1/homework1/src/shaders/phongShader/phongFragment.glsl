@@ -43,7 +43,12 @@ highp float rand_2to1(vec2 uv ) {
 
 float unpack(vec4 rgbaDepth) {
     const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0*256.0), 1.0/(256.0*256.0*256.0));
-    return dot(rgbaDepth, bitShift);
+    float depth = dot(rgbaDepth, bitShift);
+    //shadow map 没有深度值的地方默认是0 导致的有噪点
+    if(abs(depth)<0.01){
+      depth=1.0;
+    }
+    return depth;
 }
 
 vec2 poissonDisk[NUM_SAMPLES];
@@ -97,6 +102,8 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
       count ++;
     }
   }
+  if (count == 0)
+    return -1.0;
 	return blockerSums / float(count);
 }
 
@@ -126,7 +133,7 @@ float PCSS(sampler2D shadowMap, vec4 coords){
   float dBlocker = findBlocker(shadowMap, coords.xy, coords.z);
   float dReceiver = coords.z;
 
-  if (dBlocker >= dReceiver)
+  if (dBlocker >= dReceiver || dBlocker == -1.0)
     return 1.0;
 
   // STEP 2: penumbra size
